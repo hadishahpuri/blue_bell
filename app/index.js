@@ -10,12 +10,13 @@ require("./database/db");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(expressLayouts);
-app.use(passport.initialize());
-app.use(passport.session());
 app.use(session({
     secret: process.env.SESSION_SECRET,
+    resave: true,
     saveUninitialized: true,
 }));
+app.use(passport.initialize());
+app.use(passport.session());
 app.set('views', path.join(__dirname, 'views'));
 app.set('layout', 'main');
 app.set('view engine', 'ejs');
