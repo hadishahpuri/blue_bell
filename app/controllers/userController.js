@@ -1,5 +1,6 @@
-const passport = require('passport');
-const connectEnsureLogin = require("connect-ensure-login");
+const jwt = require('jsonwebtoken');
+const user = require('../models/user');
+const bcrypt = require('bcryptjs');
 
 module.exports = class userController {
     async login(req, res) {
@@ -7,10 +8,22 @@ module.exports = class userController {
     }
 
     async authenticate(req, res) {
-        return res.json({
-            status: true,
-            'message': 'success',
-            'user': req.use,
+        const userObj = await user.findOne({email: req.body.email});
+        if (userObj && bcrypt.compareSync(req.body.password, userObj.password)) {
+            const token = jwt.sign({
+                _id: userObj._id
+            }, "hascomamioawiuandihaw78", {
+                expiresIn: "30d",
+            })
+            return res.json({
+                status: true,
+                'message': 'success',
+                'user': userObj,token
+            })
+        }
+        return res.status(401).json({
+            status: false,
+            'message': 'ریدی',
         })
     }
 
@@ -19,7 +32,9 @@ module.exports = class userController {
     }
 
     async logout(req, res) {
-        req.logout();
+        req.logout(function (res) {
+            console.log(res);
+        });
         return res.redirect('/');
     }
 }
